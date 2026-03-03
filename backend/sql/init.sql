@@ -1,0 +1,9 @@
+CREATE DATABASE altis;
+USE altis;
+
+CREATE TABLE commentaires (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    auteur VARCHAR(100) NOT NULL,
+    contenu TEXT NOT NULL,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

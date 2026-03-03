@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ALTIS — Site</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -151,155 +151,29 @@
       </div>
     </section>
 
-    <!-- Avis -->
+    <!-- Section Avis / Commentaires -->
     <section id="avis">
       <div class="section-head">
         <span class="bullet"></span>
-        <div class="section-title"><strong>★ Avis</strong></div>
+        <div class="section-title"><strong>★ Avis / Commentaires</strong></div>
       </div>
 
-      <div class="grid" id="reviews">
-        <article class="card review md-4">
-          <span class="tag">Nouveau</span>
-          <div class="stars" aria-label="5 étoiles">★★★★★</div>
-          <h3>Service efficace</h3>
-          <p class="muted">Équipe réactive, interface claire. Très bonne expérience.</p>
-        </article>
+      <form id="form">
+        <input type="hidden" id="commentId">
+        <input type="text" id="nom" placeholder="Ton nom" required><br>
+        <textarea id="message" placeholder="Ton commentaire" required></textarea><br>
+        <button type="submit">Envoyer</button>
+      </form>
 
-        <article class="card review md-4">
-          <div class="stars" aria-label="4 étoiles">★★★★☆</div>
-          <h3>Merci Mathéo</h3>
-          <p class="muted">Grâce à son aide, ma machine capte à nouveau le réseau !</p>
-        </article>
-
-        <article class="card review md-4">
-          <div class="stars" aria-label="5 étoiles">★★★★★</div>
-          <h3>Support au rendez-vous</h3>
-          <p class="muted">Problème réglé rapidement, communication fluide. Merci !</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- Formulaire -->
-    <section>
-      <article class="card sm-6 form-card">
-        <h3>Laisser un avis</h3>
-        <p class="muted">Partage ton retour pour nous aider à améliorer la plateforme.</p>
-
-        <form id="reviewForm">
-          <div>
-            <label for="nom">Nom</label><br>
-            <input id="nom" name="nom" required placeholder="Ton nom">
-          </div>
-
-          <div>
-            <label for="message">Message</label><br>
-            <textarea id="message" name="message" rows="4" required placeholder="Écris ton avis…"></textarea>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn-primary" type="submit">Envoyer</button>
-          </div>
-        </form>
-      </article>
+      <h2>Commentaires existants :</h2>
+      <div id="comments"></div>
     </section>
   </main>
+
+  <script src="js/comments.js"></script>
 
   <footer class="container" style="margin:36px auto 12px;color:var(--muted);text-align:center;font-size:.95rem">
     © <span id="year"></span> ALTIS • Toujours à votre écoute !
   </footer>
-
-  <script>
-    // Année dyn.
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Ombre du header au scroll
-    const topbar = document.getElementById('topbar');
-    const onScroll = () => topbar.classList.toggle('scrolled', window.scrollY > 6);
-    window.addEventListener('scroll', onScroll, {passive:true});
-    onScroll();
-
-    // ===== Sélecteur de thème (Clair / Sombre / Système) =====
-    const THEME_KEY = 'altis-theme';
-    const root = document.documentElement;
-    const btn = document.getElementById('themeBtn');
-    const label = document.getElementById('themeLabel');
-
-    const getSystemTheme = () =>
-      matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-
-    function applyTheme(mode){
-      const realMode = mode === 'system' ? getSystemTheme() : mode;
-      root.setAttribute('data-theme', realMode);
-      label.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
-      localStorage.setItem(THEME_KEY, mode);
-    }
-
-    function initTheme(){
-      const saved = localStorage.getItem(THEME_KEY) || 'light';
-      applyTheme(saved);
-      if (saved === 'system' && matchMedia) {
-        matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyTheme('system'));
-      }
-    }
-
-    // Cycle : light -> dark -> system -> light...
-    btn.addEventListener('click', () => {
-      const current = localStorage.getItem(THEME_KEY) || 'light';
-      const next = current === 'light' ? 'dark' : current === 'dark' ? 'system' : 'light';
-      applyTheme(next);
-    });
-
-    initTheme();
-
-    // ===== JS bonus : ajouter l'avis sans recharger (toast) =====
-    const form = document.getElementById('reviewForm');
-    const list = document.getElementById('reviews');
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const nom = (document.getElementById('nom').value || 'Anonyme').trim();
-      const msg = (document.getElementById('message').value || '').trim();
-      if(!msg) return;
-
-      const card = document.createElement('article');
-      card.className = 'card review md-4';
-      card.innerHTML = `
-        <span class="tag">Nouveau</span>
-        <div class="stars" aria-label="5 étoiles">★★★★★</div>
-        <h3>${escapeHTML(nom)}</h3>
-        <p class="muted">${escapeHTML(msg)}</p>
-      `;
-      list.prepend(card);
-
-      form.reset();
-      toast("Merci pour ton avis !");
-    });
-
-    function toast(text){
-      const t = document.createElement('div');
-      t.textContent = text;
-      Object.assign(t.style, {
-        position:'fixed',
-        inset:'auto 16px 16px auto',
-        background:'linear-gradient(135deg, var(--primary), var(--primary-2))',
-        color:'#fff',
-        padding:'10px 14px',
-        borderRadius:'12px',
-        boxShadow:'0 10px 22px rgba(0,0,0,.18)',
-        zIndex:9999,
-        fontWeight:'700'
-      });
-      document.body.appendChild(t);
-      setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; }, 1600);
-      setTimeout(()=> t.remove(), 2000);
-    }
-
-    function escapeHTML(s){
-      return s.replace(/[&<>"']/g, m => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-      }[m]));
-    }
-  </script>
 </body>
 </html>
